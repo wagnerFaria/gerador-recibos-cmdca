@@ -469,7 +469,7 @@ export default function Home() {
 
                   {/* Corpo */}
                   <div className="flex-grow space-y-6 text-justify text-base leading-relaxed text-slate-800">
-                    <div className="font-bold border px-3 py-1 text-base mb-4 text-center inline-block">
+                    <div className="font-bold border px-3 py-1 text-base mb-4 text-center inline-block w-full">
                       RECIBO Nº {donor.NUM_RECIBO.toString().padStart(4, '0')} / 2025
                     </div>
                     <p>
@@ -485,7 +485,7 @@ export default function Home() {
                       O valor totalizado abaixo, referente à(s) doação(ões) realizada(s) no ano de 2025 para o Fundo Criança – Fundo Municipal dos Direitos da Criança e do Adolescente, sob CNPJ nº 07.687.045/0001-25 na forma prevista no art. 260, da Lei nº 8.069 de 13/07/1990, alterado pelo art. 10 da Lei nº 8.242 de 12/1991.
                     </p>
 
-                    <div className="pt-6">
+                    <div className="pt-2">
                       <h3 className="font-bold text-slate-900 border-b pb-2 mb-4">Detalhamento das Doações</h3>
                       <table className="w-full text-sm border-collapse ring-1 ring-slate-300 rounded overflow-hidden">
                         <thead className="">
@@ -532,7 +532,7 @@ export default function Home() {
                   </div>
 
                   {/* Rodapé / Assinaturas */}
-                  <div className="mt-20 pt-10">
+                  <div className="mt-10">
                     <div className="text-right mb-16">
                       {municipio}, {dataAssinatura}
                     </div>
