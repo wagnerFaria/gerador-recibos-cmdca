@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useCallback, useMemo, useRef } from "react";
-import { UploadCloud, FileSpreadsheet, ChevronDown, ChevronUp, AlertCircle, Printer, Download, User, FileText } from "lucide-react";
+import { UploadCloud, FileSpreadsheet, ChevronDown, ChevronUp, AlertCircle, Printer, Download, User, FileText, Loader2 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 // Interfaces
 interface RawDataEntry {
@@ -96,12 +97,15 @@ const formatMonthYear = (val: any) => {
 
 export default function Home() {
   const [municipio, setMunicipio] = useState("Cuiabá");
-  const [dataAssinatura, setDataAssinatura] = useState("02 de março de 2026");
+  const [dataAssinatura, setDataAssinatura] = useState(() =>
+    format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+  );
   const [presidenteCmdca, setPresidenteCmdca] = useState("Ivete Carneiro de Souza");
   const [secretariaSmSocial, setSecretariaSmSocial] = useState("Hélida Vilela de Oliveira");
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPrintAllMode, setIsPrintAllMode] = useState<boolean>(false);
+  const [isLoadingPrintAll, setIsLoadingPrintAll] = useState<boolean>(false);
 
   const [rawData, setRawData] = useState<RawDataEntry[]>([]);
   const [isRawDataOpen, setIsRawDataOpen] = useState(true);
@@ -356,14 +360,24 @@ export default function Home() {
                 </button>
                 <button
                   onClick={() => {
-                    setIsPrintAllMode(true);
-                    setTimeout(() => window.print(), 800);
+                    if (isPrintAllMode || isLoadingPrintAll) return;
+                    setIsLoadingPrintAll(true);
+                    // Pequeno atraso para dar tempo ao React de renderizar o estado de carregamento do botão
+                    // antes de travar a main thread do navegador processando dezenas de recibos no DOM da tela Preview
+                    setTimeout(() => {
+                      setIsPrintAllMode(true);
+                      setIsLoadingPrintAll(false);
+                    }, 50);
                   }}
-                  className="ml-4 px-4 py-2 bg-indigo-600 text-white cursor-pointer rounded-lg hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2 font-medium text-sm disabled:opacity-50"
-                  disabled={donors.length === 0}
+                  className="ml-4 px-4 py-2 bg-indigo-600 text-white cursor-pointer rounded-lg hover:bg-indigo-700 transition-all shadow-sm flex items-center gap-2 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed min-w-[155px] justify-center"
+                  disabled={donors.length === 0 || isPrintAllMode || isLoadingPrintAll}
                 >
-                  <Printer className="w-4 h-4" />
-                  Imprimir Todos
+                  {isLoadingPrintAll ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Printer className="w-4 h-4" />
+                  )}
+                  {isLoadingPrintAll ? "Carregando..." : "Imprimir Todos"}
                 </button>
               </div>
 
