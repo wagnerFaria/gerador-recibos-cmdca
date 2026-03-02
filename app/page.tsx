@@ -227,6 +227,30 @@ export default function Home() {
 
       <main className="container mx-auto px-4 py-8 space-y-8 duration-500 opacity-100 transition-opacity print:p-0 print:space-y-0">
 
+        {/* Helper / Instructions Section */}
+        <section className="bg-blue-50 p-6 rounded-xl shadow-sm border border-blue-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 print:hidden">
+          <div className="flex gap-4">
+            <div className="mt-1 flex-shrink-0">
+              <AlertCircle className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-blue-900 mb-1">Como formatar sua planilha?</h2>
+              <p className="text-blue-800 text-sm leading-relaxed">
+                Para que o sistema consiga agrupar os recibos corretamente, sua planilha precisa conter colunas claras para o <strong>NOME</strong> (ou DOADOR), o <strong>DOCUMENTO</strong> (CPF/CNPJ), o <strong>VALOR</strong> da doação e a data (ex: <strong>MES-ANO</strong>).<br />
+                Baixe a planilha modelo abaixo e utilize-a como base para organizar seus dados antes de fazer o upload.
+              </p>
+            </div>
+          </div>
+          <a
+            href="/docs/EXEMPLO-PLANILHA.xlsx"
+            download
+            className="flex-shrink-0 px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2 text-sm whitespace-nowrap"
+          >
+            <Download className="w-4 h-4" />
+            Baixar Planilha Exemplo
+          </a>
+        </section>
+
         {/* Settings Section */}
         <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 print:hidden">
           <h2 className="text-lg font-semibold mb-4 text-slate-800">Configurações do Relatório</h2>
