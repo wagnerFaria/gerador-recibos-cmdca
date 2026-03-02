@@ -241,14 +241,34 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <a
-            href="/docs/EXEMPLO-PLANILHA.xlsx"
-            download
-            className="flex-shrink-0 px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2 text-sm whitespace-nowrap"
+          <button
+            onClick={async () => {
+              try {
+                // Ao invés de <a href=...>, no Electron precisamos forçar o download via Blob, 
+                // pois o HTML 5 attribute 'download' muitas vezes é ignorado em protocolos file://
+                const response = await fetch("./docs/EXEMPLO-PLANILHA.xlsx");
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+
+                const tempLink = document.createElement("a");
+                tempLink.href = url;
+                tempLink.setAttribute("download", "EXEMPLO-PLANILHA.xlsx");
+                document.body.appendChild(tempLink);
+                tempLink.click();
+
+                // Cleanup
+                document.body.removeChild(tempLink);
+                window.URL.revokeObjectURL(url);
+              } catch (err) {
+                console.error("Erro ao baixar arquivo", err);
+                alert("Não foi possível baixar o arquivo de exemplo no momento.");
+              }
+            }}
+            className="flex-shrink-0 px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2 text-sm whitespace-nowrap cursor-pointer"
           >
             <Download className="w-4 h-4" />
             Baixar Planilha Exemplo
-          </a>
+          </button>
         </section>
 
         {/* Settings Section */}
@@ -538,7 +558,7 @@ export default function Home() {
                     {/* Logo CMDCA */}
                     <div className="flex-shrink-0 w-[100px] h-[100px] flex items-center justify-center">
                       <img
-                        src="/images/cmdca-logo.jpg"
+                        src="./images/cmdca-logo.jpg"
                         alt="CMDCA Cuiabá"
                         className="max-w-[100px] max-h-[100px] object-contain"
                       />

@@ -29,16 +29,25 @@ Um aplicativo desktop focado em facilitar e automatizar a geração de recibos d
    ```
 3. Inicie o ambiente de desenvolvimento. O projeto usa o pacote `concurrently` para subir o Next.js e injetá-lo no Electron automaticamente:
    ```bash
-   npm run electron:dev
+   bun run electron:dev
    ```
 
-## 📦 Como Gerar Arquivos de Produção
+## 📦 Como Gerar Arquivos de Produção (Executáveis)
 
-Para gerar a versão estática e finalizada da aplicação (sem o servidor Next.js de desenvolvimento):
+O projeto já está pré-configurado com a biblioteca `electron-builder` para gerar automaticamente os instaladores/executáveis.
 
-1. Rode o script de build do Next.js:
-   ```bash
-   npm run build
-   ```
-2. O front-end otimizado será construído dentro da pasta `out/`.
-3. O `main.js` configurado no Electron passará a ler diretamente o `out/index.html` em modo de produção (`app.isPackaged`). Para gerar arquivos `.exe`, `.dmg` ou equivalentes, recomenda-se adicionar e configurar a ferramenta `electron-builder` amarrada a este projeto.
+### Para gerar o `.exe` (Windows)
+> [!WARNING]
+> Se você estiver rodando este comando a partir de uma máquina **Linux ou macOS**, é **obrigatório** ter o pacote `wine` instalado no seu sistema previamente para que o compilador consiga gerar e assinar o código do Windows sem erros. (ex: `sudo apt install wine` no Ubuntu).
+
+No terminal do Windows, ou em um Linux/Mac com o Wine configurado, rode:
+```bash
+bun run dist:win
+```
+
+### Para gerar o `.AppImage` / `.deb` (Linux)
+```bash
+bun run dist:linux
+```
+
+Após a compilação, o pacote final compilado e pronto para o cliente final estará disponível dentro da pasta `/dist_electron`!

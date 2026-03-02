@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "electron:dev": "concurrently -k \"bun run dev\" \"wait-on http://localhost:3000 && electron .\""
+    "electron:dev": "concurrently -k \"bun run dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:linux": "npm run build && electron-builder --linux"
   },
   "dependencies": {
     "date-fns": "^4.1.0",
@@ -27,6 +29,7 @@
     "electron": "^40.6.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "electron-builder": "^25.1.8",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wait-on": "^9.0.4"
@@ -39,5 +42,24 @@
     "electron",
     "sharp",
     "unrs-resolver"
-  ]
+  ],
+  "build": {
+    "appId": "com.cmdca.geradorrecibos",
+    "productName": "Gerador de Recibos CMDCA",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "files": [
+      "out/**/*",
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
 }
