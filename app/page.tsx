@@ -519,7 +519,7 @@ export default function Home() {
                             )
                           })}
                         </tbody>
-                        <tfoot className="">
+                        <tfoot className="print:table-row-group">
                           <tr>
                             <td className="border px-4 py-2 text-right font-bold uppercase">Total Geral das Doações:</td>
                             <td className="border px-4 py-2 text-right font-bold">
