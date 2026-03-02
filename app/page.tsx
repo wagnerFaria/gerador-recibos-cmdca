@@ -107,6 +107,9 @@ export default function Home() {
   const [isPrintAllMode, setIsPrintAllMode] = useState<boolean>(false);
   const [isLoadingPrintAll, setIsLoadingPrintAll] = useState<boolean>(false);
 
+  const [buscaNome, setBuscaNome] = useState("");
+  const [buscaDocumento, setBuscaDocumento] = useState("");
+
   const [rawData, setRawData] = useState<RawDataEntry[]>([]);
   const [isRawDataOpen, setIsRawDataOpen] = useState(true);
   const [isDonorsOpen, setIsDonorsOpen] = useState(true);
@@ -198,6 +201,14 @@ export default function Home() {
 
     return Array.from(donorsMap.values());
   }, [rawData]);
+
+  const filteredDonors = useMemo(() => {
+    return donors.filter((d) => {
+      const matchNome = d.NOME.includes(buscaNome.toUpperCase());
+      const matchDoc = d.DOCUMENTO.includes(buscaDocumento) || d.originalDocumento.includes(buscaDocumento);
+      return matchNome && matchDoc;
+    });
+  }, [donors, buscaNome, buscaDocumento]);
 
   const selectedDonor = donors[selectedDonorIndex];
 
@@ -386,35 +397,70 @@ export default function Home() {
                   <table className="w-full text-sm text-left">
                     <thead className="text-xs text-slate-700 uppercase bg-slate-100">
                       <tr>
-                        <th className="px-6 py-3">Ação</th>
-                        <th className="px-6 py-3">Nº Recibo</th>
-                        <th className="px-6 py-3">Nome do Doador</th>
-                        <th className="px-6 py-3">Documento</th>
-                        <th className="px-6 py-3">Total Doado</th>
-                        <th className="px-6 py-3">Vol. Doações</th>
+                        <th className="px-6 py-3 border-b">Ação</th>
+                        <th className="px-6 py-3 border-b">Nº Recibo</th>
+                        <th className="px-6 py-3 border-b">
+                          <div className="flex flex-col gap-2">
+                            <span>Nome do Doador</span>
+                            <input
+                              type="text"
+                              placeholder="Filtrar por nome..."
+                              value={buscaNome}
+                              onChange={(e) => setBuscaNome(e.target.value)}
+                              className="px-2 py-1 text-sm font-normal normal-case border border-slate-300 rounded outline-none focus:ring-1 focus:ring-indigo-500 w-full"
+                            />
+                          </div>
+                        </th>
+                        <th className="px-6 py-3 border-b">
+                          <div className="flex flex-col gap-2">
+                            <span>Documento</span>
+                            <input
+                              type="text"
+                              placeholder="Filtrar por doc..."
+                              value={buscaDocumento}
+                              onChange={(e) => setBuscaDocumento(e.target.value)}
+                              className="px-2 py-1 text-sm font-normal normal-case border border-slate-300 rounded outline-none focus:ring-1 focus:ring-indigo-500 w-full"
+                            />
+                          </div>
+                        </th>
+                        <th className="px-6 py-3 border-b">Total Doado</th>
+                        <th className="px-6 py-3 border-b">Vol. Doações</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {donors.map((donor, idx) => (
-                        <tr key={idx} className={`border-b hover:bg-slate-50 transition-colors ${selectedDonorIndex === idx ? 'bg-indigo-50 border-indigo-200' : 'bg-white'}`}>
-                          <td className="px-6 py-4">
-                            <button
-                              onClick={() => {
-                                setSelectedDonorIndex(idx);
-                                setIsPrintAllMode(false);
-                              }}
-                              className={`px-3 py-1 rounded text-xs font-medium cursor-pointer transition-colors ${selectedDonorIndex === idx && !isPrintAllMode ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100'}`}
-                            >
-                              Ver Recibo
-                            </button>
+                      {filteredDonors.map((donor, idx) => {
+                        // precisamos encontrar o indíce real no array original de "donors" para o "selectedDonorIndex" não quebrar 
+                        // ao clicar em um doador pós-filtrado.
+                        const originalIndex = donors.findIndex(d => d.NUM_RECIBO === donor.NUM_RECIBO);
+
+                        return (
+                          <tr key={idx} className={`border-b hover:bg-slate-50 transition-colors ${selectedDonorIndex === originalIndex ? 'bg-indigo-50 border-indigo-200' : 'bg-white'}`}>
+                            <td className="px-6 py-4">
+                              <button
+                                onClick={() => {
+                                  setSelectedDonorIndex(originalIndex);
+                                  setIsPrintAllMode(false);
+                                }}
+                                className={`px-3 py-1 rounded text-xs font-medium cursor-pointer transition-colors ${selectedDonorIndex === originalIndex && !isPrintAllMode ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100'}`}
+                              >
+                                Ver Recibo
+                              </button>
+                            </td>
+                            <td className="px-6 py-4 font-mono font-medium text-slate-600">{donor.NUM_RECIBO.toString().padStart(4, '0')}</td>
+                            <td className="px-6 py-4 font-semibold text-slate-800">{donor.NOME}</td>
+                            <td className="px-6 py-4 font-mono">{donor.DOCUMENTO}</td>
+                            <td className="px-6 py-4 text-emerald-700 font-medium">{formatCurrency(donor.totalDoado)}</td>
+                            <td className="px-6 py-4 text-slate-500">{donor.doacoes.length} registro(s)</td>
+                          </tr>
+                        )
+                      })}
+                      {filteredDonors.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="px-6 py-8 text-center text-slate-500 text-sm">
+                            Nenhum doador encontrado com os filtros aplicados.
                           </td>
-                          <td className="px-6 py-4 font-mono font-medium text-slate-600">{donor.NUM_RECIBO.toString().padStart(4, '0')}</td>
-                          <td className="px-6 py-4 font-semibold text-slate-800">{donor.NOME}</td>
-                          <td className="px-6 py-4 font-mono">{donor.DOCUMENTO}</td>
-                          <td className="px-6 py-4 text-emerald-700 font-medium">{formatCurrency(donor.totalDoado)}</td>
-                          <td className="px-6 py-4 text-slate-500">{donor.doacoes.length} registro(s)</td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                 </div>
