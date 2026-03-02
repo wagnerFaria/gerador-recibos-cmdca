@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📄 Gerador de Recibos CMDCA
 
-## Getting Started
+Um aplicativo desktop focado em facilitar e automatizar a geração de recibos de doações para o **Conselho Municipal dos Direitos da Criança e do Adolescente (CMDCA)** de Cuiabá.
 
-First, run the development server:
+## 🚀 Funcionalidades
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Importação de Planilhas de Doação**: Suporte a arraste e solte para arquivos Excel (`.xls`, `.xlsx`).
+- **Agrupamento Inteligente de Doadores**: Detecta doadores repetidos baseando-se no CPF/CNPJ e Nome, consolidando as doações mensais e o valor total em um único recibo.
+- **Configurações Flexíveis**: Permite alterar facilmente na interface o nome do Presidente do CMDCA, da Secretária da SMSocial, município e a data de assinatura.
+- **Impressão Profissional (A4)**: Pré-visualização exata de como o arquivo será impresso, com suporte para impressão individual por doador ou impressão em lote de todos os recibos gerados de uma vez.
+- **Interface Segura e Offline**: Os dados nunca saem da máquina do usuário, pois o processamento completo das planilhas é feito localmente usando Electron.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Tecnologias Utilizadas
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Interface / Frontend**: [Next.js](https://nextjs.org/) (App Router), [React 19](https://react.dev/), [Tailwind CSS v4](https://tailwindcss.com/)
+- **Wrapper Desktop**: [Electron](https://www.electronjs.org/)
+- **Processamento de Excel**: [`xlsx`](https://docs.sheetjs.com/)
+- **Gestão de Datas e Ícones**: `date-fns` e `lucide-react`
+- **Gerenciador de Pacotes**: `bun` e `npm`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 💻 Como Rodar o Projeto
 
-## Learn More
+1. Certifique-se de ter o [Node.js](https://nodejs.org/) e o [Bun](https://bun.sh/) (opcional, mas recomendado) instalados.
+2. Acesse a pasta do projeto e instale as dependências:
+   ```bash
+   npm install
+   # ou
+   bun install
+   ```
+3. Inicie o ambiente de desenvolvimento. O projeto usa o pacote `concurrently` para subir o Next.js e injetá-lo no Electron automaticamente:
+   ```bash
+   npm run electron:dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+## 📦 Como Gerar Arquivos de Produção
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Para gerar a versão estática e finalizada da aplicação (sem o servidor Next.js de desenvolvimento):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Rode o script de build do Next.js:
+   ```bash
+   npm run build
+   ```
+2. O front-end otimizado será construído dentro da pasta `out/`.
+3. O `main.js` configurado no Electron passará a ler diretamente o `out/index.html` em modo de produção (`app.isPackaged`). Para gerar arquivos `.exe`, `.dmg` ou equivalentes, recomenda-se adicionar e configurar a ferramenta `electron-builder` amarrada a este projeto.
