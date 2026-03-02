@@ -101,6 +101,7 @@ export default function Home() {
   const [secretariaSmSocial, setSecretariaSmSocial] = useState("Hélida Vilela de Oliveira");
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPrintAllMode, setIsPrintAllMode] = useState<boolean>(false);
 
   const [rawData, setRawData] = useState<RawDataEntry[]>([]);
   const [isRawDataOpen, setIsRawDataOpen] = useState(true);
@@ -344,16 +345,27 @@ export default function Home() {
 
             {/* Unique Donors Toggle */}
             <section className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-              <button
-                onClick={() => setIsDonorsOpen(!isDonorsOpen)}
-                className="w-full px-6 py-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100 transition-colors"
-              >
-                <div className="flex items-center gap-3">
+              <div className="w-full px-6 py-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100 transition-colors">
+                <button
+                  onClick={() => setIsDonorsOpen(!isDonorsOpen)}
+                  className="flex items-center gap-3 flex-grow text-left focus:outline-none"
+                >
                   <User className="w-5 h-5 text-indigo-600" />
                   <h2 className="text-lg font-semibold text-slate-800">Doadores Únicos ({donors.length})</h2>
-                </div>
-                {isDonorsOpen ? <ChevronUp className="w-5 h-5 text-slate-500" /> : <ChevronDown className="w-5 h-5 text-slate-500" />}
-              </button>
+                  {isDonorsOpen ? <ChevronUp className="w-5 h-5 text-slate-500" /> : <ChevronDown className="w-5 h-5 text-slate-500" />}
+                </button>
+                <button
+                  onClick={() => {
+                    setIsPrintAllMode(true);
+                    setTimeout(() => window.print(), 800);
+                  }}
+                  className="ml-4 px-4 py-2 bg-indigo-600 text-white cursor-pointer rounded-lg hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2 font-medium text-sm disabled:opacity-50"
+                  disabled={donors.length === 0}
+                >
+                  <Printer className="w-4 h-4" />
+                  Imprimir Todos
+                </button>
+              </div>
 
               {isDonorsOpen && (
                 <div className="p-0 overflow-x-auto">
@@ -373,8 +385,11 @@ export default function Home() {
                         <tr key={idx} className={`border-b hover:bg-slate-50 transition-colors ${selectedDonorIndex === idx ? 'bg-indigo-50 border-indigo-200' : 'bg-white'}`}>
                           <td className="px-6 py-4">
                             <button
-                              onClick={() => setSelectedDonorIndex(idx)}
-                              className={`px-3 py-1 rounded text-xs font-medium cursor-pointer transition-colors ${selectedDonorIndex === idx ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100'}`}
+                              onClick={() => {
+                                setSelectedDonorIndex(idx);
+                                setIsPrintAllMode(false);
+                              }}
+                              className={`px-3 py-1 rounded text-xs font-medium cursor-pointer transition-colors ${selectedDonorIndex === idx && !isPrintAllMode ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100'}`}
                             >
                               Ver Recibo
                             </button>
@@ -396,129 +411,146 @@ export default function Home() {
         )}
 
         {/* Document Preview (A4 Sim) */}
-        {selectedDonor && (
+        {(selectedDonor || isPrintAllMode) && (
           <section className="mt-12">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 print:hidden">
               <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
                 <Printer className="w-6 h-6 text-emerald-600" />
-                Preview do Documento Oficial
+                {isPrintAllMode ? `Preview de Impressão em Lote (${donors.length} Recibos)` : "Preview do Documento Oficial"}
               </h2>
-              <button
-                onClick={() => window.print()}
-                className="px-4 py-2 bg-emerald-600 text-white cursor-pointer rounded-lg hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-2 font-medium print:hidden"
-              >
-                <Download className="w-4 h-4" />
-                Imprimir / PDF
-              </button>
+              <div className="flex gap-4">
+                {isPrintAllMode && (
+                  <button
+                    onClick={() => setIsPrintAllMode(false)}
+                    className="px-4 py-2 bg-slate-200 text-slate-700 cursor-pointer rounded-lg hover:bg-slate-300 transition-colors shadow-sm font-medium"
+                  >
+                    Sair do Modo Lote
+                  </button>
+                )}
+                <button
+                  onClick={() => window.print()}
+                  className="px-4 py-2 bg-emerald-600 text-white cursor-pointer rounded-lg hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-2 font-medium"
+                >
+                  <Download className="w-4 h-4" />
+                  Imprimir / PDF
+                </button>
+              </div>
             </div>
 
-            {/* A4 PAPER CONTAINER */}
-            <div className="bg-white shadow-2xl mx-auto w-full max-w-[210mm] min-h-[297mm] p-[20mm] flex flex-col relative print:shadow-none print:max-w-none print:w-full print:p-0 print:m-0" style={{ fontFamily: "Arial, sans-serif" }}>
+            {/* Renderizar UM (Selecionado) ou TODOS baseado no estado */}
+            <div className={`space-y-8 ${isPrintAllMode ? 'print:block' : ''}`}>
+              {(isPrintAllMode ? donors : [selectedDonor]).map((donor, index) => (
+                <div
+                  key={index}
+                  className="bg-white shadow-2xl mx-auto w-full max-w-[210mm] min-h-[297mm] p-[20mm] flex flex-col relative print:shadow-none print:max-w-none print:w-full print:p-0 print:m-0"
+                  style={{
+                    fontFamily: "Arial, sans-serif",
+                    pageBreakAfter: isPrintAllMode ? "always" : "auto"
+                  }}
+                >
 
-              {/* Cabeçalho */}
-              <div className="flex items-center gap-6 mb-12 mt-6 border-2 pb-6 w-full px-8">
-                {/* Logo CMDCA */}
-                <div className="flex-shrink-0 w-[100px] h-[100px] flex items-center justify-center">
-                  <img
-                    src="/images/cmdca-logo.jpg"
-                    alt="CMDCA Cuiabá"
-                    className="max-w-[100px] max-h-[100px] object-contain"
-                  />
-                </div>
-                {/* Texto CMDCA */}
-                <div className="flex-1 text-center">
-                  <h1 className="text-xl font-bold uppercase tracking-wide text-slate-900 leading-tight">
-                    CONSELHO MUNICIPAL DOS DIREITOS DA CRIANÇA E DO ADOLESCENTE DE CUIABÁ
-                  </h1>
-                </div>
-              </div>
-
-              {/* Corpo */}
-              <div className="flex-grow space-y-6 text-justify text-base leading-relaxed text-slate-800">
-                <p>
-                  <div className="font-bold border px-3 py-1 text-base mb-4 text-center">
-                    RECIBO Nº {selectedDonor.NUM_RECIBO.toString().padStart(4, '0')} / 2025
+                  {/* Cabeçalho */}
+                  <div className="flex items-center gap-6 mb-12 mt-6 border-2 pb-6 w-full px-8">
+                    {/* Logo CMDCA */}
+                    <div className="flex-shrink-0 w-[100px] h-[100px] flex items-center justify-center">
+                      <img
+                        src="/images/cmdca-logo.jpg"
+                        alt="CMDCA Cuiabá"
+                        className="max-w-[100px] max-h-[100px] object-contain"
+                      />
+                    </div>
+                    {/* Texto CMDCA */}
+                    <div className="flex-1 text-center">
+                      <h1 className="text-xl font-bold uppercase tracking-wide text-slate-900 leading-tight">
+                        CONSELHO MUNICIPAL DOS DIREITOS DA CRIANÇA E DO ADOLESCENTE DE CUIABÁ
+                      </h1>
+                    </div>
                   </div>
-                </p>
-                <p>
-                  <strong>O CMDCA – Conselho Municipal dos Direitos da Criança e do Adolescente de Cuiabá, recebeu de:</strong>
-                </p>
-                <p>
-                  NOME: <strong className="uppercase px-1">{selectedDonor.NOME}</strong>
-                </p>
-                <p>
-                  DOCUMENTO: <strong className="px-1">{selectedDonor.DOCUMENTO}</strong>
-                </p>
-                <p>
-                  O valor totalizado abaixo, referente à(s) doação(ões) realizada(s) no ano de 2025 para o Fundo Criança – Fundo Municipal dos Direitos da Criança e do Adolescente, sob CNPJ nº 07.687.045/0001-25 na forma prevista no art. 260, da Lei nº 8.069 de 13/07/1990, alterado pelo art. 10 da Lei nº 8.242 de 12/1991.
-                </p>
 
-                <div className="pt-6">
-                  <h3 className="font-bold text-slate-900 border-b pb-2 mb-4">Detalhamento das Doações</h3>
-                  <table className="w-full text-sm border-collapse ring-1 ring-slate-300 rounded overflow-hidden">
-                    <thead className="">
-                      <tr>
-                        <th className="border px-4 py-2 text-left">DATA</th>
-                        <th className="border px-4 py-2 text-right">VALOR</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[...selectedDonor.doacoes].sort((a, b) => {
-                        console.log('data em a', extractDateValue(a))
-                        console.log('data em b', extractDateValue(b))
-                        const dateA = extractDateValue(a);
-                        const dateB = extractDateValue(b);
-                        return getSortableDate(dateA) - getSortableDate(dateB);
-                      }).map((d, i) => {
-                        const dateVal = extractDateValue(d);
-                        const dateFormatted = formatMonthYear(dateVal);
+                  {/* Corpo */}
+                  <div className="flex-grow space-y-6 text-justify text-base leading-relaxed text-slate-800">
+                    <div className="font-bold border px-3 py-1 text-base mb-4 text-center inline-block">
+                      RECIBO Nº {donor.NUM_RECIBO.toString().padStart(4, '0')} / 2025
+                    </div>
+                    <p>
+                      <strong>O CMDCA – Conselho Municipal dos Direitos da Criança e do Adolescente de Cuiabá, recebeu de:</strong>
+                    </p>
+                    <p>
+                      NOME: <strong className="uppercase px-1">{donor.NOME}</strong>
+                    </p>
+                    <p>
+                      DOCUMENTO: <strong className="px-1">{donor.DOCUMENTO}</strong>
+                    </p>
+                    <p>
+                      O valor totalizado abaixo, referente à(s) doação(ões) realizada(s) no ano de 2025 para o Fundo Criança – Fundo Municipal dos Direitos da Criança e do Adolescente, sob CNPJ nº 07.687.045/0001-25 na forma prevista no art. 260, da Lei nº 8.069 de 13/07/1990, alterado pelo art. 10 da Lei nº 8.242 de 12/1991.
+                    </p>
 
-                        const valorKey = Object.keys(d).find(k => k.trim().toUpperCase().includes("VALOR"));
-                        const rawValor = valorKey ? d[valorKey] : "-";
-                        const formatVal = parseFloat(rawValor?.toString().replace(/[^\d.,-]/g, '').replace(',', '.'));
+                    <div className="pt-6">
+                      <h3 className="font-bold text-slate-900 border-b pb-2 mb-4">Detalhamento das Doações</h3>
+                      <table className="w-full text-sm border-collapse ring-1 ring-slate-300 rounded overflow-hidden">
+                        <thead className="">
+                          <tr>
+                            <th className="border px-4 py-2 text-left">DATA</th>
+                            <th className="border px-4 py-2 text-right">VALOR</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[...donor.doacoes].sort((a, b) => {
+                            const dateA = extractDateValue(a);
+                            const dateB = extractDateValue(b);
+                            return getSortableDate(dateA) - getSortableDate(dateB);
+                          }).map((d, i) => {
+                            const dateVal = extractDateValue(d);
+                            const dateFormatted = formatMonthYear(dateVal);
 
-                        return (
-                          <tr key={i} className="border-b border-slate-200">
-                            <td className="border px-4 py-2 text-slate-800 font-mono text-sm uppercase">
-                              {dateFormatted}
-                            </td>
-                            <td className="border px-4 py-2 text-right font-medium text-slate-800">
-                              {Number.isNaN(formatVal) ? rawValor : formatCurrency(formatVal)}
+                            const valorKey = Object.keys(d).find(k => k.trim().toUpperCase().includes("VALOR"));
+                            const rawValor = valorKey ? d[valorKey] : "-";
+                            const formatVal = parseFloat(rawValor?.toString().replace(/[^\d.,-]/g, '').replace(',', '.'));
+
+                            return (
+                              <tr key={i} className="border-b border-slate-200">
+                                <td className="border px-4 py-2 text-slate-800 font-mono text-sm uppercase">
+                                  {dateFormatted}
+                                </td>
+                                <td className="border px-4 py-2 text-right font-medium text-slate-800">
+                                  {Number.isNaN(formatVal) ? rawValor : formatCurrency(formatVal)}
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                        <tfoot className="">
+                          <tr>
+                            <td className="border px-4 py-2 text-right font-bold uppercase">Total Geral das Doações:</td>
+                            <td className="border px-4 py-2 text-right font-bold">
+                              {formatCurrency(donor.totalDoado)}
                             </td>
                           </tr>
-                        )
-                      })}
-                    </tbody>
-                    <tfoot className="">
-                      <tr>
-                        <td className="border px-4 py-2 text-right font-bold uppercase">Total Geral das Doações:</td>
-                        <td className="border px-4 py-2 text-right font-bold">
-                          {formatCurrency(selectedDonor.totalDoado)}
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-
-              {/* Rodapé / Assinaturas */}
-              <div className="mt-20 pt-10">
-                <div className="text-right mb-16">
-                  {municipio}, {dataAssinatura}
-                </div>
-
-                <div className="grid grid-cols-2 gap-12 text-center text-sm">
-                  <div className="border-t border-slate-400 pt-2">
-                    <p className="font-bold uppercase text-slate-900">{presidenteCmdca}</p>
-                    <p className="text-slate-500">Presidente do CMDCA</p>
+                        </tfoot>
+                      </table>
+                    </div>
                   </div>
-                  <div className="border-t border-slate-400 pt-2">
-                    <p className="font-bold uppercase text-slate-900">{secretariaSmSocial}</p>
-                    <p className="text-slate-500">Secretária SMSocial</p>
-                  </div>
-                </div>
-              </div>
 
+                  {/* Rodapé / Assinaturas */}
+                  <div className="mt-20 pt-10">
+                    <div className="text-right mb-16">
+                      {municipio}, {dataAssinatura}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-12 text-center text-sm">
+                      <div className="border-t border-slate-400 pt-2">
+                        <p className="font-bold uppercase text-slate-900">{presidenteCmdca}</p>
+                        <p className="text-slate-500">Presidente do CMDCA</p>
+                      </div>
+                      <div className="border-t border-slate-400 pt-2">
+                        <p className="font-bold uppercase text-slate-900">{secretariaSmSocial}</p>
+                        <p className="text-slate-500">Secretária SMSocial</p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              ))}
             </div>
           </section>
         )}
