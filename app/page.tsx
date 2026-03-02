@@ -42,7 +42,7 @@ const formatCurrency = (value: number) => {
 };
 
 const extractDateValue = (row: any) => {
-  const dateKey = Object.keys(row).find(k => k.trim().toUpperCase() === "MES-ANO" || k.trim().toUpperCase().includes("MES-ANO"));
+  const dateKey = Object.keys(row).find(k => k.trim().toUpperCase() === "MES-ANO" || k.trim().toUpperCase().includes("MES-ANO") || k.trim().toUpperCase() === "DATA" || k.trim().toUpperCase().includes("DATA"));
   return dateKey ? row[dateKey] : null;
 };
 
@@ -87,7 +87,7 @@ const formatMonthYear = (val: any) => {
 
   if (d && !isNaN(d.getTime())) {
     try {
-      return format(d, "MM/yyyy");
+      return format(d, "dd/MM/yyyy");
     } catch {
       return String(val);
     }
@@ -236,7 +236,7 @@ export default function Home() {
             <div>
               <h2 className="text-lg font-semibold text-blue-900 mb-1">Como formatar sua planilha?</h2>
               <p className="text-blue-800 text-sm leading-relaxed">
-                Para que o sistema consiga agrupar os recibos corretamente, sua planilha precisa conter colunas claras para o <strong>NOME</strong> (ou DOADOR), o <strong>DOCUMENTO</strong> (CPF/CNPJ), o <strong>VALOR</strong> da doação e a data (ex: <strong>MES-ANO</strong>).<br />
+                Para que o sistema consiga agrupar os recibos corretamente, sua planilha precisa conter colunas claras para o <strong>NOME</strong> (ou DOADOR), o <strong>DOCUMENTO</strong> (CPF/CNPJ), o <strong>VALOR</strong> da doação e a data (ex: <strong>DATA</strong> ou <strong>MES-ANO</strong>).<br />
                 Baixe a planilha modelo abaixo e utilize-a como base para organizar seus dados antes de fazer o upload.
               </p>
             </div>
