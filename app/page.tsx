@@ -412,7 +412,7 @@ export default function Home() {
 
         {/* Document Preview (A4 Sim) */}
         {(selectedDonor || isPrintAllMode) && (
-          <section className="mt-12">
+          <section className="mt-12 print:mt-0">
             <div className="flex items-center justify-between mb-6 print:hidden">
               <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
                 <Printer className="w-6 h-6 text-emerald-600" />
@@ -438,14 +438,14 @@ export default function Home() {
             </div>
 
             {/* Renderizar UM (Selecionado) ou TODOS baseado no estado */}
-            <div className={`space-y-8 ${isPrintAllMode ? 'print:block' : ''} print:space-y-0 print:block`}>
+            <div className={`print:block print:space-y-0 ${isPrintAllMode ? '' : 'space-y-8'}`}>
               {(isPrintAllMode ? donors : [selectedDonor]).map((donor, index) => (
                 <div
                   key={'relatorio-recibo-' + index}
-                  className="bg-white shadow-2xl mx-auto w-full max-w-[210mm] min-h-[297mm] p-[20mm] flex flex-col relative print:shadow-none print:max-w-none print:w-full print:p-0 print:m-0"
+                  className="bg-white shadow-2xl mx-auto w-full max-w-[210mm] min-h-[297mm] p-[20mm] flex flex-col relative print:shadow-none print:max-w-none print:w-full print:p-0 print:m-0 print:min-h-0 print:h-auto"
                   style={{
                     fontFamily: "Arial, sans-serif",
-                    pageBreakAfter: isPrintAllMode ? "always" : "auto"
+                    pageBreakBefore: isPrintAllMode && index > 0 ? "always" : "auto"
                   }}
                 >
 
