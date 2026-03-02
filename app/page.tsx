@@ -198,9 +198,9 @@ export default function Home() {
   const selectedDonor = donors[selectedDonorIndex];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-24">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-24 print:bg-white print:pb-0">
       {/* Header */}
-      <header className="bg-indigo-700 text-white py-6 shadow-md">
+      <header className="bg-indigo-700 text-white py-6 shadow-md print:hidden">
         <div className="container mx-auto px-4">
           <h1 className="text-2xl font-bold flex items-center gap-3">
             <FileSpreadsheet className="w-8 h-8" />
@@ -210,10 +210,10 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 space-y-8 duration-500 opacity-100 transition-opacity">
+      <main className="container mx-auto px-4 py-8 space-y-8 duration-500 opacity-100 transition-opacity print:p-0 print:space-y-0">
 
         {/* Settings Section */}
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 print:hidden">
           <h2 className="text-lg font-semibold mb-4 text-slate-800">Configurações do Relatório</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
@@ -258,7 +258,7 @@ export default function Home() {
         </section>
 
         {/* Upload Section */}
-        <section>
+        <section className="print:hidden">
           <div
             onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
             onDragLeave={() => setIsDragging(false)}
@@ -299,7 +299,7 @@ export default function Home() {
 
         {/* Data Sections */}
         {rawData.length > 0 && (
-          <div className="space-y-6">
+          <div className="space-y-6 print:hidden">
 
             {/* Raw Data Toggle */}
             <section className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -438,10 +438,10 @@ export default function Home() {
             </div>
 
             {/* Renderizar UM (Selecionado) ou TODOS baseado no estado */}
-            <div className={`space-y-8 ${isPrintAllMode ? 'print:block' : ''}`}>
+            <div className={`space-y-8 ${isPrintAllMode ? 'print:block' : ''} print:space-y-0 print:block`}>
               {(isPrintAllMode ? donors : [selectedDonor]).map((donor, index) => (
                 <div
-                  key={index}
+                  key={'relatorio-recibo-' + index}
                   className="bg-white shadow-2xl mx-auto w-full max-w-[210mm] min-h-[297mm] p-[20mm] flex flex-col relative print:shadow-none print:max-w-none print:w-full print:p-0 print:m-0"
                   style={{
                     fontFamily: "Arial, sans-serif",
