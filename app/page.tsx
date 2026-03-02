@@ -457,7 +457,7 @@ export default function Home() {
                         </th>
                         <th className="px-6 py-3 border-b">
                           <div className="flex flex-col gap-2">
-                            <span>Documento</span>
+                            <span>CPF/CNPJ</span>
                             <input
                               type="text"
                               placeholder="Filtrar por doc..."
@@ -583,7 +583,7 @@ export default function Home() {
                       NOME: <strong className="uppercase px-1">{donor.NOME}</strong>
                     </p>
                     <p>
-                      DOCUMENTO: <strong className="px-1">{donor.DOCUMENTO}</strong>
+                      CPF/CNPJ: <strong className="px-1">{donor.DOCUMENTO}</strong>
                     </p>
                     <p>
                       O valor totalizado abaixo, referente à(s) doação(ões) realizada(s) no ano de 2025 para o Fundo Criança – Fundo Municipal dos Direitos da Criança e do Adolescente, sob CNPJ nº 07.687.045/0001-25 na forma prevista no art. 260, da Lei nº 8.069 de 13/07/1990, alterado pelo art. 10 da Lei nº 8.242 de 12/1991.
